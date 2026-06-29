@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المصحف الإلكتروني الشامل - الإصدار الاحترافي والموسوعي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-green: #1b452f;
+            --secondary-green: #255b3d;
+            --accent-gold: #d4af37;
+            --bg-light: #fcfaf2;
+            --card-bg: #ffffff;
+            --text-dark: #333333;
+            --border-color: #eae6d8;
+            --text-muted: #666666;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --sub-card-bg: #fdfcf7;
+            --quran-font-size: 2.3rem;
+            --highlight-glow: rgba(212, 175, 55, 0.2);
+            --diff-highlight: #ffeb3b;
+            --diff-text: #000000;
+        }
+
+        body.dark-mode {
+            --primary-green: #0f2c1d;
+            --secondary-green: #163a25;
+            --accent-gold: #e5c158;
+            --bg-light: #121212;
+            --card-bg: #1e1e1e;
+            --text-dark: #e0e0e0;
+            --border-color: #2d2d2d;
+            --text-muted: #aaaaaa;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --sub-card-bg: #252525;
+            --highlight-glow: rgba(229, 193, 88, 0.25);
+            --diff-highlight: #b89800;
+            --diff-text: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        body { background-color: var(--bg-light); color: var(--text-dark); padding-bottom: 30px; }
+        
+        .header { background: var(--primary-green); color: white; padding: 25px 20px; text-align: center; position: relative; box-shadow: 0 4px 10px var(--shadow-color); }
+        .header h1 { font-family: 'Amiri', serif; font-size: 2.8rem; margin-bottom: 5px; color: var(--accent-gold); }
+        .header p { font-size: 1.1rem; opacity: 0.9; }
+        
+        .theme-toggle { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); background: transparent; border: 2px solid var(--accent-gold); color: var(--accent-gold); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .theme-toggle:hover { background: var(--accent-gold); color: var(--primary-green); }
+
+        .nav-tabs { display: flex; justify-content: center; gap: 8px; background: var(--secondary-green); padding: 12px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .tab-btn { background: transparent; border: 1px solid var(--accent-gold); color: white; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+        .tab-btn.active, .tab-btn:hover { background: var(--accent-gold); color: var(--primary-green); }
+
+        .container { max-width: 1250px; margin: 25px auto; padding: 0 15px; }
+        .section { display: none; animation: fadeIn 0.4s ease; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .controls-bar { display: flex; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; background: var(--card-bg); padding: 18px; border-radius: 8px; box-shadow: 0 2px 8px var(--shadow-color); border: 1px solid var(--border-color); align-items: center; }
+        input, select, button { padding: 12px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 1rem; background: var(--card-bg); color: var(--text-dark); }
+        input { flex: 1; min-width: 250px; }
+        input:focus, select:focus { border-color: var(--accent-gold); outline: none; }
+        
+        .btn-main { background: var(--primary-green); color: white; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: bold; }
+        .btn-gold { background: var(--accent-gold); color: var(--primary-green); cursor: pointer; border: none; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-info { background: #2980b9; color: white; cursor: pointer; border: none; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-danger { background: #c0392b; color: white; cursor: pointer; border: none; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-main:hover, .btn-gold:hover, .btn-info:hover, .btn-danger:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .playback-row { display: flex; width: 100%; gap: 10px; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
+        .playback-row button { flex: 1; max-width: 200px; }
+
+        .surah-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px; }
+        .surah-card { background: var(--card-bg); padding: 22px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color); cursor: pointer; box-shadow: 0 2px 6px var(--shadow-color); position: relative; overflow: hidden; }
+        .surah-card::before { content: ''; position: absolute; right: 0; top: 0; height: 100%; width: 4px; background: var(--accent-gold); opacity: 0; transition: 0.2s; }
+        .surah-card:hover::before { opacity: 1; }
+        .surah-card:hover { border-color: var(--accent-gold); transform: translateY(-3px); box-shadow: 0 5px 12px var(--shadow-color); }
+        .surah-name { font-family: 'Amiri', serif; font-size: 1.6rem; color: var(--accent-gold); font-weight: bold; margin-bottom: 5px; }
+        .surah-meta-sub { color: var(--text-muted); font-size: 0.85rem; display: flex; justify-content: center; gap: 8px; margin-top: 5px; }
+
+        .quran-reader { background: var(--card-bg); padding: 35px; border-radius: 10px; box-shadow: 0 4px 15px var(--shadow-color); border: 1px solid var(--border-color); }
+        .ayah-block { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed var(--border-color); position: relative; }
+        .ayah-text { font-family: 'Amiri', serif; font-size: var(--quran-font-size); line-height: 2.3; text-align: justify; direction: rtl; word-spacing: 2px; }
+        .ayah-number { color: var(--accent-gold); font-size: 1.6rem; margin: 0 6px; font-weight: bold; display: inline-block; }
+        .ayah-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        
+        .tafsir-box { display: none; background: rgba(212, 175, 55, 0.08); padding: 20px; border-radius: 8px; margin-top: 15px; border-right: 4px solid var(--accent-gold); font-size: 1.15rem; line-height: 1.8; border: 1px solid var(--border-color); }
+        .tafsir-title { color: var(--primary-green); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 1.2rem; }
+        body.dark-mode .tafsir-title { color: var(--accent-gold); }
+
+        .font-sizer-container { background: var(--sub-card-bg); padding: 10px 15px; border-radius: 6px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--border-color); }
+        .font-sizer-container span { font-weight: bold; font-size: 0.9rem; color: var(--primary-green); }
+        body.dark-mode .font-sizer-container span { color: var(--accent-gold); }
+
+        .tracker-status-badge { background: var(--primary-green); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--accent-gold); margin-bottom: 15px; }
+        .tracker-view-box { max-height: 430px; overflow-y: auto; background: var(--bg-light); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 20px; scroll-behavior: smooth; }
+        
+        .track-ayah-line { padding: 14px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; font-family: 'Amiri', serif; font-size: 1.7rem; line-height: 1.9; text-align: right; color: var(--text-dark); border: 1px solid transparent; transition: all 0.3s ease; position: relative; }
+        .track-ayah-line:hover { background: rgba(212, 175, 55, 0.05); border-color: var(--accent-gold); }
+        .track-ayah-line.active { background: var(--highlight-glow) !important; color: var(--text-dark) !important; font-weight: bold; border: 1px solid var(--accent-gold); box-shadow: 0 0 15px var(--highlight-glow); }
+        .track-ayah-line.active::after { content: "🎧 يقرأ الآن"; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; font-family: 'Tajawal'; color: var(--accent-gold); font-weight: bold; }
+
+        .custom-audio-player { width: 100%; margin-top: 20px; border-radius: 8px; display:none; }
+        
+        .grid-two-column { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 850px) { .grid-two-column { grid-template-columns: 320px 1fr; } }
+        
+        .sidebar-menu { background: var(--card-bg); border-radius: 8px; padding: 15px; border: 1px solid var(--border-color); box-shadow: 0 2px 6px var(--shadow-color); height: fit-content; max-height: 750px; overflow-y: auto; }
+        .menu-item-btn { width: 100%; text-align: right; padding: 12px 15px; background: transparent; border: none; border-radius: 5px; color: var(--text-dark); cursor: pointer; font-weight: 500; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between; font-size: 0.95rem; }
+        .menu-item-btn:hover, .menu-item-btn.active { background: var(--primary-green); color: white; }
+        body.dark-mode .menu-item-btn:hover, body.dark-mode .menu-item-btn.active { background: var(--accent-gold); color: var(--primary-green); }
+
+        .content-display-panel { background: var(--card-bg); border-radius: 8px; padding: 25px; border: 1px solid var(--border-color); box-shadow: 0 2px 6px var(--shadow-color); }
+        
+        .qiraat-detail-card { background: var(--sub-card-bg); border: 1px solid var(--accent-gold); border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
+        .qiraat-detail-header { background: rgba(212, 175, 55, 0.15); padding: 12px 20px; font-weight: bold; color: var(--primary-green); border-bottom: 1px solid var(--accent-gold); display:flex; align-items:center; gap:8px;}
+        body.dark-mode .qiraat-detail-header { color: var(--accent-gold); background: rgba(229, 193, 88, 0.1); }
+        .qiraat-detail-body { padding: 15px 20px; font-size: 1.1rem; line-height: 1.9; }
+        
+        .split-screen-container { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+        @media (min-width: 768px) { .split-screen-container { flex-direction: row; } }
+        .split-pane { flex: 1; background: var(--sub-card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px var(--shadow-color); }
+        .split-pane-title { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px; border-bottom: 1px dashed var(--border-color); padding-bottom: 5px; text-align:center; font-weight:bold; }
+        .ayah-compare-text { font-family: 'Amiri', serif; font-size: 1.8rem; text-align: center; line-height: 2.2; color: var(--primary-green); }
+        body.dark-mode .ayah-compare-text { color: var(--accent-gold); }
+        .highlight-word { background-color: var(--diff-highlight); color: var(--diff-text); font-weight: bold; padding: 0 6px; border-radius: 4px; box-shadow: 0 0 5px rgba(0,0,0,0.1); display: inline-block; border-bottom: 2px solid #e74c3c; }
+        .dabit-box { background: rgba(41, 128, 185, 0.1); border-right: 4px solid #2980b9; padding: 15px; border-radius: 4px; margin-top: 15px; font-weight: 500; font-size: 1.1rem; line-height: 1.8; }
+        body.dark-mode .dabit-box { background: rgba(41, 128, 185, 0.2); color:#e0e0e0; }
+
+        .tajweed-title { color: var(--primary-green); font-size: 1.8rem; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--accent-gold); padding-bottom: 10px; }
+        body.dark-mode .tajweed-title { color: var(--accent-gold); }
+        .tajweed-explain-text { line-height: 1.9; font-size: 1.15rem; margin-bottom: 20px; text-align: justify; }
+        
+        .sub-rule-card { background: var(--sub-card-bg); border-right: 4px solid var(--primary-green); padding: 15px; margin-bottom: 15px; border-radius: 4px; border: 1px solid var(--border-color); }
+        body.dark-mode .sub-rule-card { border-right-color: var(--accent-gold); }
+        .sub-rule-card h4 { color: var(--primary-green); margin-bottom: 8px; font-size: 1.3rem; }
+        body.dark-mode .sub-rule-card h4 { color: var(--accent-gold); }
+        .tajweed-example-box { background: var(--card-bg); border: 1px dashed var(--accent-gold); padding: 12px 20px; border-radius: 5px; font-family: 'Amiri', serif; font-size: 1.6rem; margin-top: 12px; color: #c0392b; display: inline-block; text-align: right; direction: rtl; }
+        body.dark-mode .tajweed-example-box { color: #f2a1a1; background: #252525; }
+
+        .progress-container { width: 100%; background: var(--border-color); height: 8px; border-radius: 4px; margin-top: 15px; cursor: pointer; overflow: hidden; position: relative; }
+        .progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.1s linear; }
+
+        .audio-example-player { background: var(--sub-card-bg); border: 1px solid var(--accent-gold); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .audio-example-player strong { display: block; color: var(--primary-green); margin-bottom: 10px; font-size: 1.1rem; }
+        body.dark-mode .audio-example-player strong { color: var(--accent-gold); }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1>المصحف الإلكتروني الشامل والموسوعي</h1>
+        <p>موسوعة التلاوة، التجويد الشامل، القراءات العشر (نظري وتطبيقي)، والمتشابهات اللفظية الدقيقة</p>
+        <button class="theme-toggle" onclick="toggleTheme()">
+            <i id="theme-icon" class="fa-solid fa-moon"></i> <span id="theme-text">الوضع الليلي</span>
+        </button>
+    </header>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('read')"><i class="fa-solid fa-book-open"></i> المصحف الشريف</button>
+        <button class="tab-btn" onclick="switchTab('listen')"><i class="fa-solid fa-headphones"></i> التلاوة المزامنة</button>
+        <button class="tab-btn" onclick="switchTab('tajweed')"><i class="fa-solid fa-microphone-lines"></i> أحكام التجويد الشاملة</button>
+        <button class="tab-btn" onclick="switchTab('qiraat')"><i class="fa-solid fa-scroll"></i> موسوعة القراءات العشر</button>
+        <button class="tab-btn" onclick="switchTab('similar')"><i class="fa-solid fa-code-compare"></i> موسوعة المتشابهات الكاملة</button>
+    </div>
+
+    <div class="container">
+        <div id="read" class="section active">
+            <div class="controls-bar">
+                <!-- تم تعديل حقل البحث للاستجابة الفورية -->
+                <input type="text" id="search-input" placeholder="ابحث عن اسم سورة أو آية في القرآن..." oninput="handleSearch()">
+                <button class="btn-main" onclick="goToBookmark()"><i class="fa-solid fa-bookmark"></i> العلامة</button>
+                <button class="btn-danger" onclick="removeBookmark()"><i class="fa-solid fa-trash-can"></i> إزالة</button>
+                <button class="btn-gold" onclick="showSurahGrid()"><i class="fa-solid fa-list"></i> الفهرس</button>
+                
+                <div class="font-sizer-container">
+                    <span>حجم الخط:</span>
+                    <button onclick="adjustFontSize(-0.2)" class="btn-main" style="padding:4px 10px;"><i class="fa-solid fa-minus"></i></button>
+                    <button onclick="adjustFontSize(0.2)" class="btn-main" style="padding:4px 10px;"><i class="fa-solid fa-plus"></i></button>
+                </div>
+            </div>
+
+            <div id="surah-grid" class="surah-grid"></div>
+            <div id="search-results" style="display: none;" class="quran-reader"></div>
+
+            <div id="reading-container" style="display: none;" class="quran-reader">
+                <h2 id="current-surah-title" style="text-align: center; margin-bottom: 20px; color: var(--primary-green); font-family: 'Amiri'; font-size: 2.6rem;"></h2>
+                <div id="ayahs-container"></div>
+            </div>
+        </div>
+
+        <div id="listen" class="section">
+            <div class="controls-bar" style="flex-direction: column; align-items: stretch;">
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <!-- تم تصحيح أسماء ومعرفات القراء لتعمل بنجاح -->
+                    <select id="reciter-select" style="flex: 2; min-width: 200px;" onchange="loadSurahMetadataAndText()">
+                        <option value="ar.alafasy" selected>مشاري بن راشد العفاسي</option>
+                        <option value="ar.abdulbasitmurattal">عبد الباسط عبد الصمد (مرتل)</option>
+                        <option value="ar.husary">محمود خليل الحصري</option>
+                        <option value="ar.minshawi">محمد صديق المنشاوي</option>
+                        <option value="ar.mahermuaiqly">ماهر المعيقلي</option>
+                        <option value="ar.abdurrahmaansudais">عبد الرحمن السديس</option>
+                        <option value="ar.saudshuraym">سعود الشريم</option>
+                        <option value="ar.hudhaify">علي بن عبد الرحمن الحذيفي</option>
+                        <option value="ar.saadalghamdi">سعد الغامدي</option> 
+                        <option value="ar.ahmedajamy">أحمد بن علي العجمي</option>
+                        <option value="ar.abdullahbasfar">عبد الله بصفر</option>
+                        <option value="ar.aymanswayd">أيمن سويد (معلم التجويد)</option>
+                    </select>
+                    <select id="audio-surah-select" style="flex: 1; min-width: 150px;" onchange="loadSurahMetadataAndText()"></select>
+                    
+                    <select id="loop-count-select" style="flex: 1; min-width: 130px;">
+                        <option value="1">تلاوة عادية (بدون تكرار)</option>
+                        <option value="2">تكرار الآية (مرتين)</option>
+                        <option value="3">تكرار الآية (3 مرات)</option>
+                    </select>
+
+                    <select id="speed-select" style="flex: 0.5; min-width: 90px;" onchange="adjustPlaybackSpeed(this.value)">
+                        <option value="0.75">0.75x (بطيء)</option>
+                        <option value="1.0" selected>1.0x (طبيعي)</option>
+                        <option value="1.25">1.25x (سريع)</option>
+                    </select>
+                </div>
+                
+                <button class="btn-main" style="width: 100%; padding: 14px;" onclick="startAyahByAyahRecitation(0)"><i class="fa-solid fa-circle-play"></i> بدء الاستماع المزامَن التلقائي</button>
+                
+                <div class="playback-row">
+                    <button id="pause-btn" class="btn-gold" onclick="togglePauseAudioRecitation()"><i class="fa-solid fa-pause"></i> توقف مؤقت</button>
+                    <button class="btn-danger" onclick="stopAudioRecitation()"><i class="fa-solid fa-stop"></i> إيقاف نهائي</button>
+                </div>
+            </div>
+
+            <div class="quran-reader" style="text-align: center; padding: 30px 20px;">
+                <div class="tracker-status-badge" id="tracker-badge">
+                    <i class="fa-solid fa-bolt"></i> <span id="tracker-badge-text">نظام التتبع المزامَن الذكي</span>
+                </div>
+                <h3 id="audio-status" style="color: var(--primary-green); font-size: 1.5rem; margin-bottom: 15px;">اختر القارئ والسورة واضغط بدء الاستماع</h3>
+                
+                <div class="progress-container" onclick="seekAudio(event)">
+                    <div class="progress-bar" id="audio-progress"></div>
+                </div>
+
+                <audio id="audio-player-1" class="custom-audio-player"></audio>
+                <audio id="audio-player-2" class="custom-audio-player"></audio>
+                
+                <div class="tracker-view-box" id="tracker-scroller" style="display: none;">
+                    <div id="tracker-text-target"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tajweed" class="section">
+            <div class="grid-two-column">
+                <div class="sidebar-menu" id="tajweed-menu-list"></div>
+                <div class="content-display-panel" id="tajweed-content-panel"></div>
+            </div>
+        </div>
+
+        <div id="qiraat" class="section">
+            <div class="grid-two-column">
+                <div class="sidebar-menu" id="qiraat-menu-list"></div>
+                <div class="content-display-panel" id="qiraat-content-panel"></div>
+            </div>
+        </div>
+        
+        <div id="similar" class="section">
+            <div class="grid-two-column">
+                <div class="sidebar-menu" id="similar-menu-list"></div>
+                <div class="content-display-panel" id="similar-content-panel"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let allSurahs = [];
+        let currentFetchedSurahText = [];
+        let currentAyahPlayingIndex = -1;
+        let currentLoopCountDone = 0;
+        let isRecitationActive = false;
+        let consecutiveErrors = 0;
+
+        let activePlayerIndex = 1; 
+        const player1 = document.getElementById('audio-player-1');
+        const player2 = document.getElementById('audio-player-2');
+        let updateProgressInterval;
+        let searchTimeout = null; 
+
+        const tajweedDatabase = [
+            {
+                id: "noon_sakina", title: "أحكام النون الساكنة والتنوين", desc: "للنون الساكنة والتنوين أربعة أحكام رئيسية عند التقائها بأحرف الهجاء:",
+                subRules: [
+                    { name: "الإظهار الحلقي", content: "إخراج الحرف من مخرجه بغير غنة ظاهرة. وحروفه: (ء، هـ، ع، ح، غ، خ).", example: "﴿مِنْ خَوْفٍ﴾" },
+                    { name: "الإدغام", content: "دمج الحرفين ليصيرا حرفاً مشدداً. بغنة في (يَنْمُو)، وبغير غنة في (ل، ر).", example: "﴿مَن يَعْمَلْ﴾" },
+                    { name: "الإقلاب", content: "قلب النون الساكنة أو التنوين ميماً مخفاة بغنة عند حرف (الباء).", example: "﴿مِنۢ بَعْدِ﴾" },
+                    { name: "الإخفاء الحقيقي", content: "النطق بالحرف بصفة بين الإظهار والإدغام عارياً عن التشديد مع بقاء الغنة. وحروفه الـ 15 الباقية.", example: "﴿مِن قَبْلُ﴾" }
+                ]
+            },
+            {
+                id: "meem_sakina", title: "أحكام الميم الساكنة", desc: "للميم الساكنة ثلاثة أحكام مرتبطة بما يأتي بعدها من الحروف:",
+                subRules: [
+                    { name: "الإخفاء الشفوي", content: "إذا وقعت (الباء) بعد الميم الساكنة، تخفى الميم بغنة حركتين.", example: "﴿يَعْتَصِم بِاللَّهِ﴾" },
+                    { name: "إدغام المتماثلين الصغير", content: "إذا وقعت (ميم) أخرى بعد الميم الساكنة، تدغمان لتصبحا ميماً واحدة مشددة بغنة.", example: "﴿وَلَكُم مَّا كَسَبْتُمْ﴾" },
+                    { name: "الإظهار الشفوي", content: "أن تنطق الميم بوضوح دون غنة زائدة عند بقية الأحرف الـ 26، ويكون أشد إظهاراً عند الواو والفاء.", example: "﴿هُمْ فِيهَا﴾" }
+                ]
+            },
+            {
+                id: "mudood", title: "أحكام المدود التفصيلية", desc: "المد هو إطالة الصوت بحرف من حروف المد (الألف، الواو، الياء السواكن المجانس لها ما قبلها).",
+                subRules: [
+                    { name: "المد الطبيعي (الأصلي)", content: "ما لا تقوم ذات الحرف إلا به ولا يتوقف على سبب. ويمد حركتين.", example: "﴿نُوحِيهَا﴾" },
+                    { name: "المد المتصل", content: "أن يقع الهمز بعد حرف المد في كلمة واحدة. يجب مده 4 أو 5 حركات.", example: "﴿السَّمَاءِ﴾" },
+                    { name: "المد المنفصل", content: "أن يقع حرف المد في آخر الكلمة والهمز في بداية الكلمة التي تليها. يمد 4 أو 5 (ويجوز قصره).", example: "﴿إِنَّا أَعْطَيْنَاكَ﴾" },
+                    { name: "المد اللازم", content: "أن يقع سكون أصلي بعد حرف المد وصلاً ووقفاً. يلزمه الإشباع 6 حركات.", example: "﴿الضَّآلِّينَ﴾" }
+                ]
+            },
+            {
+                id: "qalqalah", title: "أحكام القلقلة", desc: "اضطراب المخرج عند النطق بالحرف ساكناً حتى يسمع له نبرة قوية. حروفها (قُطْبُ جَدٍّ).",
+                subRules: [
+                    { name: "قلقلة صغرى", content: "إذا كان حرف القلقلة ساكناً في وسط الكلمة أو الكلام.", example: "﴿يَقْطَعُونَ﴾" },
+                    { name: "قلقلة كبرى", content: "إذا تطرف حرف القلقلة ووقفنا عليه بالسكون.", example: "﴿الْفَلَقِ﴾" },
+                    { name: "قلقلة أكبر", content: "إذا تطرف الحرف وكان مشدداً ووقفنا عليه.", example: "﴿الْحَقُّ﴾" }
+                ]
+            }
+        ];
+
+        // تم إصلاح مسارات الصوت لتعمل بشكل مؤكد لجميع القراءات
+        const qiraatDatabase = [
+            { 
+                id: "nafi", title: "1. قراءة الإمام نافع المدني", desc: "قرأ بها أهل المدينة، راوياه: قالون وورش. تمتاز بتسهيل الهمزات والنقل عند ورش.",
+                audioUrl: "https://cdn.islamic.network/quran/audio/128/ar.husary/4.mp3", 
+                details: [
+                    { type: "الأصول", title: "الهمزات والنقل (ورش)", content: "ينقل ورش حركة الهمزة إلى الساكن قبلها (مَنَ امَنَ)، ويسهل الهمزات. أما قالون فله صلة ميم الجمع بخلفه وقصر المنفصل." },
+                    { type: "الفرش المطبق", title: "مَلِكِ يَوْمِ الدِّينِ", content: "يقرأ نافع براوييه (مَلِكِ يَوْمِ الدِّينِ) بحذف الألف، للدلالة على المُلك المطلق والتصرف التام يوم القيامة." },
+                    { type: "الضابط التوجيهي", title: "الفرق بين مَلِك ومَالِك", content: "المَلِك هو الذي يأمر وينهى في المُلك، والمالك هو حائز الشيء. وكلاهما قراءتان متواترتان تكملان المعنى العظيم." }
+                ]
+            },
+            { 
+                id: "ibnkathir", title: "2. قراءة الإمام ابن كثير المكي", desc: "قراءة أهل مكة، راوياه: البزي وقنبل. اشتهرت بصلة ميم الجمع وصلة هاء الكناية.",
+                audioUrl: "https://cdn.islamic.network/quran/audio/128/ar.abdulbasitmurattal/4.mp3", 
+                details: [
+                    { type: "الأصول", title: "صلة ميم الجمع", content: "يصل ابن كثير ميم الجمع بواو لفظية دائماً إذا جاء بعدها متحرك: (عَلَيْهِمُو غَيْرِ الْمَغْضُوبِ عَلَيْهِمُو)." },
+                    { type: "الأصول", title: "هاء الكناية", content: "يصل هاء الضمير إذا وقعت بين ساكن ومتحرك (وهو ما يخالف فيه حفصاً): (فِيهِي هُدًى لِلْمُتَّقِينَ)." },
+                    { type: "الفرش المطبق", title: "الصراط", content: "يقرأ قنبل عن ابن كثير (السراط) بالسين في كل القرآن بدل الصاد." }
+                ]
+            },
+            { 
+                id: "abuamr", title: "3. قراءة الإمام أبي عمرو البصري", desc: "قراءة أهل البصرة، راوياه: الدوري والسوسي. اشتهرت بالإدغام الكبير للسوسي.",
+                audioUrl: "https://cdn.islamic.network/quran/audio/128/ar.minshawi/4.mp3", 
+                details: [
+                    { type: "الأصول", title: "الإدغام الكبير (للسوسي)", content: "إدغام حرف متحرك في حرف متحرك آخر، مثل: (الرَّحْمَنِ الرَّحِيمِ مَّلِكِ) تدغم الميم المكسورة في المفتوحة فتصبح ميماً مشددة." },
+                    { type: "الأصول", title: "الإمالة (للدوري)", content: "يُقِل الدوري من الإمالة مقارنة بالكسائي، لكنه يميل كلمات مثل (النَّاسِ) المجرورة، وبعض ذوات الياء." }
+                ]
+            },
+            { 
+                id: "ibnamir", title: "4. قراءة الإمام ابن عامر الشامي", desc: "قراءة أهل الشام، راوياه: هشام وابن ذكوان. من أعلى القراءات سنداً.",
+                audioUrl: "https://cdn.islamic.network/quran/audio/128/ar.mahermuaiqly/4.mp3",
+                details: [
+                    { type: "الأصول", title: "الهمز المتطرف (لهشام)", content: "يقف هشام على الهمز المتطرف بالتسهيل والإبدال للتخفيف (مثل حمزة)، ويقرأ بالتحقيق وصلاً." },
+                    { type: "الفرش المطبق", title: "سورة الأنعام", content: "يقرأ: (زُيِّنَ لِكَثِيرٍ ... قَتْلُ أَوْلَادِهِمْ شُرَكَائِهمْ) ببناء الفعل للمجهول وفصل المضاف بين المضاف والمضاف إليه." }
+                ]
+            },
+            { 
+                id: "asim", title: "5. قراءة الإمام عاصم الكوفي", desc: "أكثر القراءات انتشاراً في العالم، راوياه: شعبة وحفص.",
+                audioUrl: "https://cdn.islamic.network/quran/audio/128/ar.alafasy/4.mp3",
+                details: [
+                    { type: "الأصول", title: "التحقيق العام", content: "يتميز عاصم بتحقيق جميع الهمزات وعدم النقل أو التسهيل (إلا في كلمات معدودة جداً كـ 'ءأعجمي')." },
+                    { type: "الفرش المطبق", title: "خلافات شعبة وحفص", content: "يقرأ شعبة (رُضوان) بضم الراء بينما حفص بكسرها. ويقرأ شعبة (يَحسِب) بكسر السين، وحفص بفتحها." }
+                ]
+            },
+            { 
+                id: "hamzah", title: "6. قراءة الإمام حمزة الكوفي", desc: "امتازت بطول المدود والسكت والوقف على الهمزات، راوياه: خلف وخلاد.",
+                audioUrl: "https://cdn.islamic.network/quran/audio/128/ar.abdurrahmaansudais/4.mp3", 
+                details: [
+                    { type: "الأصول", title: "السكت والمد", content: "يُشبع المدود المنفصلة والمتصلة (6 حركات). ويسكت على الساكن قبل الهمز (مَنْ ءَامَنَ) لبيان الهمز." },
+                    { type: "الأصول", title: "تخفيف الهمز وقفاً", content: "له قاعدة مطردة في تسهيل وإبدال ونقل الهمزات عند الوقف عليها فقط، ولا يحققها." }
+                ]
+            },
+            { 
+                id: "kisaei", title: "7. قراءة الإمام الكسائي الكوفي", desc: "إمام النحاة. راوياه: أبو الحارث والدوري. امتازت بكثرة الإمالات.",
+                audioUrl: "https://cdn.islamic.network/quran/audio/128/ar.saudshuraym/4.mp3",
+                details: [
+                    { type: "الأصول", title: "الإمالة الكبرى", content: "هو أكثر القراء إمالة للألفات إلى الياء (الضحى، يتلى، الخ) للتقريب الصوتي بين الحركات." },
+                    { type: "الأصول", title: "هاء التأنيث", content: "يختص بإمالة هاء التأنيث وما قبلها عند الوقف (مثل: الرَّحْمِةْ، الْجَنِّةْ، الْقِيَامِةْ) بشروط دقيقة." }
+                ]
+            },
+            { 
+                id: "abujaafar", title: "8. قراءة الإمام أبي جعفر المدني", desc: "شيخ الإمام نافع وأحد القراء الثلاثة المتممين. راوياه: ابن وردان وابن جماز.",
+                audioUrl: "https://cdn.islamic.network/quran/audio/128/ar.hudhaify/4.mp3",
+                details: [
+                    { type: "الأصول", title: "السكت والإخفاء", content: "له سكتات على حروف التهجي أوائل السور. ويخفي النون الساكنة عند الخاء والغين مع بقاء الغنة." },
+                    { type: "الفرش المطبق", title: "إبدال الهمز", content: "يبدل كل همز مفرد ساكن حرف مد من جنس حركته (الذيب، بير، المومنون)." }
+                ]
+            },
+            { 
+                id: "yaqub", title: "9. قراءة الإمام يعقوب الحضرمي", desc: "قراءة أهل البصرة بعد أبي عمرو. راوياه: رويس وروح.",
+                audioUrl: "https://cdn.islamic.network/quran/audio/128/ar.saadalghamdi/4.mp3",
+                details: [
+                    { type: "الأصول", title: "هاء السكت", content: "يتميز بالوقف بهاء السكت على الكلمات الاستفهامية والمشددة نحو (عَمَّهْ، بِمَهْ، هُوَهْ، هِيَهْ)." },
+                    { type: "الأصول", title: "ضم هاء الجمع", content: "يضم هاء ضمير الجمع إذا سبقتها ياء ساكنة: (عَلَيْهُمْ، فِيهُمْ، إِلَيْهُمْ) لردها إلى أصلها." }
+                ]
+            },
+            { 
+                id: "khalaf", title: "10. قراءة الإمام خلف العاشر", desc: "هو خلف بن هشام البزار، وهذه قراءته باختياره المستقل. راوياه: إسحاق وإدريس.",
+                audioUrl: "https://cdn.islamic.network/quran/audio/128/ar.ahmedajamy/4.mp3",
+                details: [
+                    { type: "الأصول", title: "مخالفته لحمزة", content: "يوافق حمزة في الفرشيات غالباً، ولكنه يخالفه في الأصول فلا يسكت على الساكن قبل الهمز، ولا يُشِمُّ الصاد زايا." },
+                    { type: "الأصول", title: "ترك الغنة", content: "يترك الغنة عند إدغام النون الساكنة والتنوين في الواو والياء فيقرأ: (مَن يَقُولُ) إدغاماً تاماً بلا غنة." }
+                ]
+            }
+        ];
+
+        const similarDatabase = [
+            { 
+                id: "exact_match", title: "1. قسـم التَّشـابُه التَّـام (تطابق كلي)", 
+                desc: "الآيات التي وردت بنفس اللفظ تماماً في أكثر من موضع، وتتطلب روابط حصرية لضبطها.",
+                examples: [
+                    {
+                        surah1: "سورة يونس (48) وغيرها", text1: "وَيَقُولُونَ مَتَى هَذَا الْوَعْدُ إِنْ كُنْتُمْ صَادِقِينَ", highlight1: "وَيَقُولُونَ مَتَى هَذَا الْوَعْدُ إِنْ كُنْتُمْ صَادِقِينَ",
+                        surah2: "الأنبياء (38)، النمل (71)، يس (48)، الملك (25)", text2: "وَيَقُولُونَ مَتَى هَذَا الْوَعْدُ إِنْ كُنْتُمْ صَادِقِينَ", highlight2: "وَيَقُولُونَ مَتَى هَذَا الْوَعْدُ إِنْ كُنْتُمْ صَادِقِينَ",
+                        dabit: "وردت هذه الآية كاملة 6 مرات. الرابط الذهني لجمع أسماء السور: (يونس والأنبياء نَمَّلوا يس سجدةً للملك). في سورة السجدة الاختلاف وحيد: (متى هذا الفتح)."
+                    },
+                    {
+                        surah1: "سورة البقرة (47)", text1: "يَا بَنِي إِسْرَائِيلَ اذْكُرُوا نِعْمَتِيَ الَّتِي أَنْعَمْتُ عَلَيْكُمْ وَأَنِّي فَضَّلْتُكُمْ عَلَى الْعَالَمِينَ", highlight1: "يَا بَنِي إِسْرَائِيلَ اذْكُرُوا نِعْمَتِيَ الَّتِي أَنْعَمْتُ عَلَيْكُمْ وَأَنِّي فَضَّلْتُكُمْ عَلَى الْعَالَمِينَ",
+                        surah2: "سورة البقرة (122)", text2: "يَا بَنِي إِسْرَائِيلَ اذْكُرُوا نِعْمَتِيَ الَّتِي أَنْعَمْتُ عَلَيْكُمْ وَأَنِّي فَضَّلْتُكُمْ عَلَى الْعَالَمِينَ", highlight2: "يَا بَنِي إِسْرَائِيلَ اذْكُرُوا نِعْمَتِيَ الَّتِي أَنْعَمْتُ عَلَيْكُمْ وَأَنِّي فَضَّلْتُكُمْ عَلَى الْعَالَمِينَ",
+                        dabit: "تطابق تام داخل نفس السورة. الموضع الأول افتتاح لسجل تاريخ بني إسرائيل، والثاني ختام له، ليُغلق الملف وهم مُذكَّرون بالنعم."
+                    },
+                    {
+                        surah1: "سورة القمر (17)", text1: "وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ", highlight1: "وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ",
+                        surah2: "القمر (22)، (32)، (40)", text2: "وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ", highlight2: "وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ",
+                        dabit: "تكررت 4 مرات بنفس الحروف عقب كل قصة هلاك (قوم نوح، عاد، ثمود، لوط) لتأكيد أن الاعتبار بالقرآن ميسر لكل طالب هداية."
+                    }
+                ] 
+            },
+            { 
+                id: "addition_omission", title: "2. التَّشابُه بالزيادة والنقصان (حرف أو كلمة)", 
+                desc: "تتطابق الآيتان مع زيادة واو، فاء، أو كلمة تماشياً مع السياق البلاغي.",
+                examples: [
+                    {
+                        surah1: "سورة البقرة (115)", text1: "وَلِلَّهِ الْمَشْرِقُ وَالْمَغْرِبُ فَأَيْنَمَا تُوَلُّوا فَثَمَّ وَجْهُ اللَّهِ", highlight1: "وَلِلَّهِ الْمَشْرِقُ وَالْمَغْرِبُ",
+                        surah2: "سورة البقرة (142)", text2: "سَيَقُولُ السُّفَهَاءُ ... قُلْ لِلَّهِ الْمَشْرِقُ وَالْمَغْرِبُ يَهْدِي مَنْ يَشَاءُ", highlight2: "قُلْ لِلَّهِ الْمَشْرِقُ وَالْمَغْرِبُ",
+                        dabit: "آية 115 تقرر حقيقة عامة فبدأت بـ (ولله). أما آية 142 فهي تلقين لرد عاجل على شبهة السفهاء فجاء الأمر بحذف الواو (قل لله)."
+                    },
+                    {
+                        surah1: "سورة البقرة (58)", text1: "وَإِذْ قُلْنَا ادْخُلُوا هَذِهِ الْقَرْيَةَ فَكُلُوا مِنْهَا حَيْثُ شِئْتُمْ رَغَدًا ... وَسَنَزِيدُ", highlight1: "فَكُلُوا ... رَغَدًا ... وَسَنَزِيدُ",
+                        surah2: "سورة الأعراف (161)", text2: "وَإِذْ قِيلَ لَهُمُ اسْكُنُوا هَذِهِ الْقَرْيَةَ وَكُلُوا مِنْهَا حَيْثُ شِئْتُمْ ... سَنَزِيدُ", highlight2: "وَكُلُوا ... سَنَزِيدُ",
+                        dabit: "البقرة سورة تفضيل وتكريم (زيادة كلمة رغدا والواو). الأعراف سورة تقريع وعرض أخطاء (حذفت كلمة رغدا والواو)."
+                    },
+                    {
+                        surah1: "عامة القرآن الكريم", text1: "تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ", highlight1: "مِن تَحْتِهَا",
+                        surah2: "سورة التوبة (100)", text2: "وَأَعَدَّ لَهُمْ جَنَّاتٍ تَجْرِي تَحْتَهَا الْأَنْهَارُ خَالِدِينَ فِيهَا أَبَدًا", highlight2: "تَجْرِي تَحْتَهَا",
+                        dabit: "كل القرآن الكريم ورد فيه (من تحتها)، باستثناء موضع وحيد جاء بدون حرف (من) وهو الموضع الأخير في سورة التوبة آية 100."
+                    }
+                ] 
+            },
+            { 
+                id: "swap_words", title: "3. التَّشابُه بالتقديم والتأخير", 
+                desc: "تقديم كلمة وتأخير أخرى لسر بياني وإعجاز دقيق.",
+                examples: [
+                    {
+                        surah1: "سورة البقرة (48)", text1: "وَلَا يُقْبَلُ مِنْهَا شَفَاعَةٌ وَلَا يُؤْخَذُ مِنْهَا عَدْلٌ وَلَا هُمْ يُنْصَرُونَ", highlight1: "شَفَاعَةٌ وَلَا يُؤْخَذُ مِنْهَا عَدْلٌ",
+                        surah2: "سورة البقرة (123)", text2: "وَلَا يُقْبَلُ مِنْهَا عَدْلٌ وَلَا تَنفَعُهَا شَفَاعَةٌ وَلَا هُمْ يُنْصَرُونَ", highlight2: "عَدْلٌ وَلَا تَنفَعُهَا شَفَاعَةٌ",
+                        dabit: "في الآية 48 ظنوا أن آباءهم الأنبياء سيشفعون لهم، فنفى الله (الشفاعة) أولاً. وفي الآية 123 عكس الترتيب لنفي الفدية (العدل) ثم الشفاعة لإغلاق كافة أبواب النجاة."
+                    },
+                    {
+                        surah1: "سورة البقرة (173)", text1: "إِنَّمَا حَرَّمَ عَلَيْكُمُ الْمَيْتَةَ ... وَمَا أُهِلَّ بِهِ لِغَيْرِ اللَّهِ", highlight1: "وَمَا أُهِلَّ بِهِ لِغَيْرِ اللَّهِ",
+                        surah2: "المائدة (3) والأنعام (145)", text2: "حُرِّمَتْ عَلَيْكُمُ الْمَيْتَةُ ... وَمَا أُهِلَّ لِغَيْرِ اللَّهِ بِهِ", highlight2: "وَمَا أُهِلَّ لِغَيْرِ اللَّهِ بِهِ",
+                        dabit: "سورة البقرة هي السورة الوحيدة التي قُدم فيها الجار والمجرور (به) على (لغير الله). ما تبقى من القرآن العظيم: (لغير الله به)."
+                    },
+                    {
+                        surah1: "الروم (19) والأنعام (95)", text1: "يُخْرِجُ الْحَيَّ مِنَ الْمَيِّتِ وَيُخْرِجُ الْمَيِّتَ مِنَ الْحَيِّ", highlight1: "يُخْرِجُ",
+                        surah2: "سورة آل عمران (27)", text2: "وَتُخْرِجُ الْحَيَّ مِنَ الْمَيِّتِ وَتُخْرِجُ الْمَيِّتَ مِنَ الْحَيِّ", highlight2: "وَتُخْرِجُ",
+                        dabit: "في آل عمران جاءت بصيغة المخاطب (تخرج) لأن السياق قبلها مناجاة مباشرة لله: (قُلِ اللَّهُمَّ مَالِكَ الْمُلْكِ تُؤْتِي الْمُلْكَ مَن تَشَاءُ)."
+                    }
+                ] 
+            },
+            {
+                id: "letter_change", title: "4. التَّشابُه بإبدال حرف مكان حرف",
+                desc: "تغيير حرف واحد يقلب دلالة الآية من العموم للخصوص أو العكس.",
+                examples: [
+                    {
+                        surah1: "سورة البقرة (187) - آيات الصيام", text1: "تِلْكَ حُدُودُ اللَّهِ فَلَا تَقْرَبُوهَا", highlight1: "فَلَا تَقْرَبُوهَا",
+                        surah2: "سورة البقرة (229) - آيات الطلاق", text2: "تِلْكَ حُدُودُ اللَّهِ فَلَا تَعْتَدُوهَا", highlight2: "فَلَا تَعْتَدُوهَا",
+                        dabit: "الصيام كف عن الشهوات فناسبه النهي عن القرب (فلا تقربوها). والطلاق تشريع وتصرف في الحقوق فناسبه النهي عن التجاوز (فلا تعتدوها)."
+                    },
+                    {
+                        surah1: "سورة آل عمران (133)", text1: "وَسَارِعُوا إِلَىٰ مَغْفِرَةٍ مِّن رَّبِّكُمْ وَجَنَّةٍ", highlight1: "وَسَارِعُوا",
+                        surah2: "سورة الحديد (21)", text2: "سَابِقُوا إِلَىٰ مَغْفِرَةٍ مِّن رَّبِّكُمْ وَجَنَّةٍ", highlight2: "سَابِقُوا",
+                        dabit: "آل عمران سورة تتحدث عن الجهاد والحركة فناسبها لفظ (سارعوا)، والحديد سورة تتحدث عن فناء الدنيا وزوالها فناسبها لفظ المنافسة (سابقوا) قبل فوات الأوان."
+                    }
+                ]
+            },
+            {
+                id: "word_change", title: "5. التَّشابُه بإبدال كلمة بكلمة مرادفة",
+                desc: "استخدام مفردة قريبة المعنى لكنها تلتصق بالمقام النظري للسورة.",
+                examples: [
+                    {
+                        surah1: "سورة البقرة (60)", text1: "فَانفَجَرَتْ مِنْهُ اثْنَتَا عَشْرَةَ عَيْنًا", highlight1: "فَانفَجَرَتْ",
+                        surah2: "سورة الأعراف (160)", text2: "فَانبَجَسَتْ مِنْهُ اثْنَتَا عَشْرَةَ عَيْنًا", highlight2: "فَانبَجَسَتْ",
+                        dabit: "الانبجاس خروج الماء بقلة، والانفجار خروجه بتدفق وقوة. البقرة مقام تكريم وتفضيل فناسبها الانفجار، والأعراف مقام عتاب وتذكير فناسبها الانبجاس."
+                    },
+                    {
+                        surah1: "سورة الأنعام (50)", text1: "قُلْ لَا أَقُولُ لَكُمْ عِنْدِي خَزَائِنُ اللَّهِ ... أَفَلَا تَتَفَكَّرُونَ", highlight1: "تَتَفَكَّرُونَ",
+                        surah2: "سورة الأعراف (3)", text2: "اتَّبِعُوا مَا أُنْزِلَ إِلَيْكُمْ ... قَلِيلًا مَا تَذَكَّرُونَ", highlight2: "تَذَكَّرُونَ",
+                        dabit: "الأنعام سورة حجاج جدلي وعقلي فناسبها التفكر (تتفكرون)، والأعراف سورة قصص واعتبار فناسبها التذكر (تذكرون)."
+                    }
+                ]
+            },
+            {
+                id: "fawasil", title: "6. التَّشابُه في فواصل الآيات (الخواتيم)",
+                desc: "قواعد ذهنية صارمة لعدم الخلط في أسماء الله الحسنى بختام الآية.",
+                examples: [
+                    {
+                        surah1: "سورة البقرة وآل عمران والمنافقون والتغابن", text1: "وَاللَّهُ بِمَا تَعْمَلُونَ خَبِيرٌ", highlight1: "بِمَا تَعْمَلُونَ خَبِيرٌ",
+                        surah2: "بقية سور القرآن الكريم", text2: "وَاللَّهُ خَبِيرٌ بِمَا تَعْمَلُونَ", highlight2: "خَبِيرٌ بِمَا تَعْمَلُونَ",
+                        dabit: "قاعدة ذهنية ذهبية (بـ.آ.م.ت): تقدم لفظ (بما تعملون خبير) في 4 سور فقط جمعتها أوائل هذه الأحرف: البقرة، آل عمران، المنافقون، التغابن. ما عداها يعكس الترتيب."
+                    },
+                    {
+                        surah1: "سورة المائدة (118) - مناجاة عيسى عليه السلام", text1: "وَإِنْ تَغْفِرْ لَهُمْ فَإِنَّكَ أَنْتَ الْعَزِيزُ الْحَكِيمُ", highlight1: "الْعَزِيزُ الْحَكِيمُ",
+                        surah2: "مواضع المغفرة العامة في القرآن", text2: "فَإِنَّكَ أَنْتَ الْغَفُورُ الرَّحِيمُ", highlight2: "الْغَفُورُ الرَّحِيمُ",
+                        dabit: "يخطئ الكثير ويختم آية المائدة بـ (الغفور الرحيم) استناداً لكلمة تغفر، لكن المقام هنا يوم القيامة ومقام عدل ومحاسبة، فالمغفرة تصدر عن كمال عزة وحكمة وليس عن عجز، لذا خُتمت بـ (العزيز الحكيم)."
+                    }
+                ]
+            },
+            {
+                id: "openings", title: "7. موسوعة أوائل السور وحروف التنبيه",
+                desc: "ضبط الافتتاحيات المتشابهة في القرآن العظيم.",
+                examples: [
+                    {
+                        surah1: "سورة السجدة (2)", text1: "تَنزِيلُ الْكِتَابِ لَا رَيْبَ فِيهِ مِن رَّبِّ الْعَالَمِينَ", highlight1: "لَا رَيْبَ فِيهِ",
+                        surah2: "الزمر، غافر، الجاثية، الأحقاف", text2: "تَنزِيلُ الْكِتَابِ مِنَ اللَّهِ الْعَزِيزِ الْحَكِيمِ (أو العليم)", highlight2: "مِنَ اللَّهِ الْعَزِيزِ",
+                        dabit: "سورة السجدة هي السورة الوحيدة المبدوءة بـ (تنزيل الكتاب) التي تبعتها جملة (لا ريب فيه). باقي السور الحواميم تتبعها صفات الله عز وجل."
+                    }
+                ]
+            },
+            {
+                id: "exclusives", title: "8. المتشابهات الحصرية (الموضع الوحيد)",
+                desc: "آيات انفردت بلفظ معين لم يتكرر في الـ 114 سورة.",
+                examples: [
+                    {
+                        surah1: "سورة البقرة (36)", text1: "فَأَزَلَّهُمَا الشَّيْطَانُ عَنْهَا فَأَخْرَجَهُمَا مِمَّا كَانَا فِيهِ", highlight1: "فَأَزَلَّهُمَا",
+                        surah2: "سورة الأعراف (20)", text2: "فَوَسْوَسَ لَهُمَا الشَّيْطَانُ لِيُبْدِيَ لَهُمَا مَا وُورِيَ عَنْهُمَا", highlight2: "فَوَسْوَسَ لَهُمَا",
+                        dabit: "في البقرة ذكر النتيجة المباشرة للإغواء (أزلهما)، وفي الأعراف فصّل بداية المعصية (وسوس لهما). أما في طه فجاءت تخصيصاً لآدم: (فوسوس إليه الشيطان)."
+                    }
+                ]
+            }
+        ];
+
+        function getAudioUrl(reciterId, ayahGlobalNumber) {
+            return `https://cdn.islamic.network/quran/audio/128/${reciterId}/${ayahGlobalNumber}.mp3`;
+        }
+
+        window.onload = () => {
+            fetch('https://api.alquran.cloud/v1/surah')
+                .then(res => res.json())
+                .then(data => {
+                    allSurahs = data.data;
+                    renderSurahGrid();
+                    populateAudioSelect();
+                });
+
+            initTajweedMenu();
+            initQiraatMenu();
+            initSimilarMenu();
+            applySavedTheme();
+            setupGaplessAudioListeners();
+        };
+
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('quran_dark_mode', isDark ? 'enabled' : 'disabled');
+            updateThemeUIElements(isDark);
+        }
+
+        function applySavedTheme() {
+            if(localStorage.getItem('quran_dark_mode') === 'enabled') {
+                document.body.classList.add('dark-mode');
+                updateThemeUIElements(true);
+            } else updateThemeUIElements(false);
+        }
+
+        function updateThemeUIElements(isDark) {
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            if(isDark) { icon.className = "fa-solid fa-sun"; text.innerText = "الوضع النهاري"; }
+            else { icon.className = "fa-solid fa-moon"; text.innerText = "الوضع الليلي"; }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+            if(activeBtn) activeBtn.classList.add('active');
+            
+            if(tabId !== 'listen') stopAudioRecitation();
+        }
+
+        function adjustFontSize(amount) {
+            const root = document.documentElement;
+            let currentSize = parseFloat(getComputedStyle(root).getPropertyValue('--quran-font-size'));
+            let newSize = currentSize + amount;
+            if (newSize >= 1.5 && newSize <= 4.0) root.style.setProperty('--quran-font-size', newSize + 'rem');
+        }
+
+        function renderSurahGrid() {
+            const grid = document.getElementById('surah-grid');
+            grid.innerHTML = '';
+            allSurahs.forEach(surah => {
+                const type = surah.revelationType === "Meccan" ? "مكية" : "مدنية";
+                grid.innerHTML += `
+                    <div class="surah-card" onclick="openSurah(${surah.number}, '${surah.name}')">
+                        <div class="surah-name">${surah.name}</div>
+                        <div class="surah-meta-sub"><span>آياتها: ${surah.numberOfAyahs}</span> • <span style="color:var(--accent-gold); font-weight:bold;">${type}</span></div>
+                    </div>
+                `;
+            });
+            document.getElementById('reading-container').style.display = 'none';
+            document.getElementById('search-results').style.display = 'none';
+            grid.style.display = 'grid';
+        }
+
+        function showSurahGrid() { document.getElementById('search-input').value = ''; renderSurahGrid(); }
+
+        function openSurah(surahNumber, surahName) {
+            document.getElementById('surah-grid').style.display = 'none';
+            document.getElementById('search-results').style.display = 'none';
+            const reader = document.getElementById('reading-container');
+            const ayahsContainer = document.getElementById('ayahs-container');
+            
+            document.getElementById('current-surah-title').innerText = `سُورَةُ ${surahName.replace('سُورَةُ ', '')}`;
+            reader.style.display = 'block';
+            ayahsContainer.innerHTML = '<h3 style="text-align:center; padding:20px;">جاري تحميل النص القرآني الشريف...</h3>';
+
+            fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}`)
+                .then(res => res.json())
+                .then(data => {
+                    ayahsContainer.innerHTML = '';
+                    if(surahNumber !== 1 && surahNumber !== 9) {
+                        ayahsContainer.innerHTML += `<div style="text-align:center; font-family:'Amiri'; font-size:2.2rem; color:var(--primary-green); margin-bottom:25px;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+                    }
+                    data.data.ayahs.forEach(ayah => {
+                        let textStr = ayah.text;
+                        if(ayah.numberInSurah === 1 && surahNumber !== 1) textStr = textStr.replace('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', '');
+                        ayahsContainer.innerHTML += `
+                            <div class="ayah-block" id="ayah-${ayah.number}">
+                                <div class="ayah-text">${textStr} <span class="ayah-number">﴿${ayah.numberInSurah}﴾</span></div>
+                                <div class="ayah-actions">
+                                    <button class="btn-info" style="padding: 5px 12px; font-size: 0.85rem;" onclick="toggleTafsir(${surahNumber}, ${ayah.numberInSurah}, ${ayah.number})">
+                                        <i class="fa-solid fa-book-open"></i> التفسير والأحكام
+                                    </button>
+                                    <button class="btn-main" style="padding: 5px 12px; font-size: 0.85rem;" onclick="saveBookmark(${ayah.number}, ${surahNumber})">
+                                        <i class="fa-solid fa-bookmark"></i> حفظ العلامة
+                                    </button>
+                                </div>
+                                <div id="tafsir-box-${ayah.number}" class="tafsir-box"></div>
+                            </div>
+                        `;
+                    });
+                });
+        }
+
+        function toggleTafsir(surahNum, ayahNumInSurah, globalAyah) {
+            const box = document.getElementById(`tafsir-box-${globalAyah}`);
+            if (box.style.display === 'block') { box.style.display = 'none'; return; }
+            box.style.display = 'block';
+            box.innerHTML = '<div class="tafsir-title"><i class="fa-solid fa-spinner fa-spin"></i> جاري جلب التفسير الميسر...</div>';
+            fetch(`https://api.alquran.cloud/v1/ayah/${surahNum}:${ayahNumInSurah}/ar.muyassar`)
+                .then(res => res.json())
+                .then(data => { box.innerHTML = `<div class="tafsir-title"><i class="fa-solid fa-book-open-reader"></i> التفسير الميسر:</div><div style="font-size:1.3rem; line-height:2;">${data.data.text}</div>`; })
+                .catch(() => { box.innerHTML = '<span style="color:red;">خطأ في جلب التفسير.</span>'; });
+        }
+
+        function saveBookmark(ayah, surah) { localStorage.setItem('quran_bookmark_ayah', ayah); localStorage.setItem('quran_bookmark_surah', surah); alert('تم التثبيت بنجاح!'); }
+        function removeBookmark() { localStorage.removeItem('quran_bookmark_ayah'); localStorage.removeItem('quran_bookmark_surah'); alert('تمت إزالة العلامة المحفوظة.'); }
+        
+        function goToBookmark() {
+            const surah = localStorage.getItem('quran_bookmark_surah');
+            const ayah = localStorage.getItem('quran_bookmark_ayah');
+            if(!surah || !ayah) return alert('لا توجد علامة محفوظة حالياً.');
+            openSurah(surah, allSurahs.find(s => s.number == surah).name);
+            setTimeout(() => {
+                const el = document.getElementById(`ayah-${ayah}`);
+                if(el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.backgroundColor = 'var(--highlight-glow)'; setTimeout(() => { el.style.backgroundColor = 'transparent'; }, 2500); }
+            }, 1500);
+        }
+
+        // تم تعديل وظيفة البحث لتصبح فورية ولتظهر أسماء السور والآيات في لمح البصر
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.trim();
+            const resultsContainer = document.getElementById('search-results');
+            
+            clearTimeout(searchTimeout);
+
+            if(query.length < 1) { 
+                resultsContainer.style.display = 'none'; 
+                if(query.length === 0) renderSurahGrid(); 
+                return; 
+            }
+
+            document.getElementById('surah-grid').style.display = 'none'; 
+            document.getElementById('reading-container').style.display = 'none';
+            resultsContainer.style.display = 'block'; 
+            
+            // بحث فوري في أسماء السور محلياً
+            const matchedSurahs = allSurahs.filter(s => s.name.includes(query));
+            let localHTML = '';
+            if(matchedSurahs.length > 0) {
+                localHTML += '<h3 style="color:var(--accent-gold); margin-bottom:15px; text-align:center;"><i class="fa-solid fa-list"></i> نتائج السور:</h3><div class="surah-grid" style="margin-bottom: 25px;">';
+                matchedSurahs.forEach(surah => {
+                    localHTML += `
+                        <div class="surah-card" onclick="openSurah(${surah.number}, '${surah.name}')">
+                            <div class="surah-name">${surah.name}</div>
+                            <div class="surah-meta-sub"><span>آياتها: ${surah.numberOfAyahs}</span></div>
+                        </div>`;
+                });
+                localHTML += '</div><hr style="border-color:var(--border-color); margin-bottom: 20px;">';
+            }
+
+            // عرض نتائج السور الفورية، وطلب نتائج الآيات
+            resultsContainer.innerHTML = localHTML + '<h3 style="text-align:center; color:var(--primary-green);"><i class="fa-solid fa-spinner fa-spin"></i> جاري البحث الفوري في الآيات...</h3>';
+
+            searchTimeout = setTimeout(() => {
+                fetch(`https://api.alquran.cloud/v1/search/${query}/all/ar`).then(res => res.json()).then(data => {
+                    let finalHTML = localHTML;
+                    if(!data.data || data.data.count === 0) { 
+                        resultsContainer.innerHTML = finalHTML + '<h3 style="text-align:center; color:#c0392b;">لا توجد آيات مطابقة للبحث.</h3>'; 
+                        return; 
+                    }
+                    finalHTML += `<h3 style="margin-bottom:20px; color:var(--primary-green); text-align:center;"><i class="fa-solid fa-book-open"></i> نتائج الآيات: ${data.data.count} آية</h3>`;
+                    data.data.matches.forEach(m => {
+                        let text = m.text.replace(new RegExp(query, 'gi'), match => `<span class="highlight-word">${match}</span>`);
+                        finalHTML += `<div class="ayah-block" style="cursor:pointer;" onclick="openSurah(${m.surah.number}, '${m.surah.name}')"><div style="font-weight:bold; color:var(--accent-gold); margin-bottom:5px;">سورة ${m.surah.name} - آية ${m.numberInSurah}</div><div class="ayah-text" style="font-size:1.8rem;">${text}</div></div>`;
+                    });
+                    resultsContainer.innerHTML = finalHTML;
+                }).catch(() => {
+                    resultsContainer.innerHTML = localHTML + '<h3 style="text-align:center; color:#c0392b;">حدث خطأ أثناء الاتصال أو الكلمة غير موجودة.</h3>';
+                });
+            }, 100); 
+        }
+
+        function populateAudioSelect() {
+            const select = document.getElementById('audio-surah-select');
+            select.innerHTML = '';
+            allSurahs.forEach(surah => {
+                let opt = document.createElement('option');
+                opt.value = surah.number; opt.innerText = `سورة ${surah.name}`;
+                if(surah.number === 1) opt.selected = true;
+                select.appendChild(opt);
+            });
+            loadSurahMetadataAndText();
+        }
+
+        function loadSurahMetadataAndText() {
+            stopAudioRecitation();
+            const surahNum = document.getElementById('audio-surah-select').value;
+            const trackerTarget = document.getElementById('tracker-text-target');
+            document.getElementById('tracker-scroller').style.display = 'block';
+            trackerTarget.innerHTML = '<em>جاري تجهيز بيانات السورة للصوتيات...</em>';
+
+            fetch(`https://api.alquran.cloud/v1/surah/${surahNum}`)
+                .then(res => res.json())
+                .then(data => {
+                    currentFetchedSurahText = data.data.ayahs;
+                    trackerTarget.innerHTML = '';
+                    currentFetchedSurahText.forEach((a, idx) => {
+                        trackerTarget.innerHTML += `<div class="track-ayah-line" id="track-line-${idx}" onclick="startAyahByAyahRecitation(${idx})">${a.text} <span style="color:var(--accent-gold); font-size:1.2rem; font-weight:bold;">﴿${a.numberInSurah}﴾</span></div>`;
+                    });
+                    document.getElementById('audio-status').innerText = "النظام جاهز للبث المباشر المزامَن الآن.";
+                });
+        }
+
+        function getActivePlayer() { return activePlayerIndex === 1 ? player1 : player2; }
+        function getStandbyPlayer() { return activePlayerIndex === 1 ? player2 : player1; }
+
+        function setupGaplessAudioListeners() {
+            [player1, player2].forEach(player => {
+                player.onended = () => {
+                    if(!isRecitationActive) return;
+                    const maxLoops = parseInt(document.getElementById('loop-count-select').value);
+                    currentLoopCountDone++;
+                    if (currentLoopCountDone < maxLoops) { player.currentTime = 0; player.play(); } 
+                    else { currentLoopCountDone = 0; playNextAyahGapless(); }
+                };
+                
+                player.onerror = () => { 
+                    if(!isRecitationActive) return;
+                    consecutiveErrors++;
+                    console.warn("خطأ في تحميل مقطع من خادم الصوتيات.");
+
+                    if (consecutiveErrors >= 2) {
+                        stopAudioRecitation();
+                        alert("عفواً، خادم هذا القارئ لا يستجيب حالياً أو أن الملف الصوتي غير متوفر. يرجى اختيار قارئ آخر من القائمة.");
+                        return;
+                    }
+
+                    if(player === getActivePlayer()) { 
+                        playNextAyahGapless(); 
+                    } 
+                };
+
+                player.onplaying = () => {
+                    consecutiveErrors = 0; 
+                };
+            });
+        }
+
+        function startAyahByAyahRecitation(index) {
+            if (index < 0 || index >= currentFetchedSurahText.length) return;
+            stopAudioRecitationSilently();
+            
+            isRecitationActive = true;
+            consecutiveErrors = 0;
+            currentAyahPlayingIndex = index;
+            currentLoopCountDone = 0; 
+            
+            const reciterId = document.getElementById('reciter-select').value;
+            const ayahGlobalNum = currentFetchedSurahText[index].number;
+            
+            const activePlayer = getActivePlayer();
+            activePlayer.src = getAudioUrl(reciterId, ayahGlobalNum);
+            activePlayer.playbackRate = parseFloat(document.getElementById('speed-select').value);
+            
+            activePlayer.play().then(() => {
+                if(!isRecitationActive) { activePlayer.pause(); return; }
+                updateUITracker(index);
+                preloadNextAyah(index + 1);
+                startProgressBar();
+            }).catch(e => {
+                console.log("تعذر التشغيل التلقائي بسبب سياسات المتصفح.");
+            });
+            
+            const pauseBtn = document.getElementById('pause-btn');
+            pauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i> توقف مؤقت'; pauseBtn.className = "btn-gold";
+        }
+
+        function preloadNextAyah(nextIndex) {
+            if (nextIndex >= currentFetchedSurahText.length) return;
+            const reciterId = document.getElementById('reciter-select').value;
+            const standbyPlayer = getStandbyPlayer();
+            standbyPlayer.src = getAudioUrl(reciterId, currentFetchedSurahText[nextIndex].number);
+            standbyPlayer.load(); 
+        }
+
+        function playNextAyahGapless() {
+            if(!isRecitationActive) return;
+            let nextIndex = currentAyahPlayingIndex + 1;
+            if (nextIndex < currentFetchedSurahText.length) {
+                activePlayerIndex = activePlayerIndex === 1 ? 2 : 1;
+                const newActivePlayer = getActivePlayer();
+                newActivePlayer.playbackRate = parseFloat(document.getElementById('speed-select').value);
+                
+                newActivePlayer.play().then(() => {
+                    if(!isRecitationActive) { newActivePlayer.pause(); return; }
+                    currentAyahPlayingIndex = nextIndex;
+                    updateUITracker(nextIndex);
+                    preloadNextAyah(nextIndex + 1); 
+                }).catch(() => startAyahByAyahRecitation(nextIndex));
+            } else {
+                stopAudioRecitation();
+                document.getElementById('audio-status').innerHTML = `<span style="color:#27ae60;"><i class="fa-solid fa-square-check"></i> بحمد الله وتوفيقه، تمت تلاوة السورة كاملة.</span>`;
+            }
+        }
+
+        function updateUITracker(index) {
+            const reciterName = document.getElementById('reciter-select').options[document.getElementById('reciter-select').selectedIndex].text;
+            const surahName = document.getElementById('audio-surah-select').options[document.getElementById('audio-surah-select').selectedIndex].text;
+            const ayahData = currentFetchedSurahText[index];
+            
+            document.getElementById('audio-status').innerHTML = `يقرأ الآن: <span style="color:var(--accent-gold); font-weight:bold;">${surahName}</span> | ${reciterName}`;
+            document.getElementById('tracker-badge-text').innerHTML = `ترتيل الآية رقم: <strong style="color:var(--accent-gold); font-size:1.1rem;">${ayahData.numberInSurah}</strong>`;
+
+            document.querySelectorAll('.track-ayah-line').forEach(el => el.classList.remove('active'));
+            const activeLine = document.getElementById(`track-line-${index}`);
+            if(activeLine) { activeLine.classList.add('active'); activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        }
+
+        function adjustPlaybackSpeed(speed) { player1.playbackRate = parseFloat(speed); player2.playbackRate = parseFloat(speed); }
+
+        function togglePauseAudioRecitation() {
+            const player = getActivePlayer();
+            const btn = document.getElementById('pause-btn');
+            if(!player.src) return;
+            if(player.paused) { player.play(); btn.innerHTML = '<i class="fa-solid fa-pause"></i> توقف مؤقت'; btn.className = "btn-gold"; isRecitationActive = true; } 
+            else { player.pause(); btn.innerHTML = '<i class="fa-solid fa-play"></i> استئناف'; btn.className = "btn-main"; isRecitationActive = false; }
+        }
+
+        function stopAudioRecitationSilently() {
+            isRecitationActive = false;
+            player1.pause(); player1.removeAttribute('src'); player1.load();
+            player2.pause(); player2.removeAttribute('src'); player2.load();
+            clearInterval(updateProgressInterval);
+            document.getElementById('audio-progress').style.width = '0%';
+        }
+
+        function stopAudioRecitation() {
+            stopAudioRecitationSilently();
+            currentAyahPlayingIndex = -1; currentLoopCountDone = 0; consecutiveErrors = 0;
+            document.getElementById('audio-status').innerHTML = `<span style="color:#c0392b;"><i class="fa-solid fa-circle-stop"></i> تم إيقاف التلاوة نهائياً</span>`;
+            document.querySelectorAll('.track-ayah-line').forEach(el => el.classList.remove('active'));
+        }
+
+        function startProgressBar() {
+            clearInterval(updateProgressInterval);
+            updateProgressInterval = setInterval(() => {
+                const player = getActivePlayer();
+                if(player.duration) document.getElementById('audio-progress').style.width = ((player.currentTime / player.duration) * 100) + '%';
+            }, 100);
+        }
+
+        function seekAudio(e) {
+            const player = getActivePlayer();
+            if(!player.src) return;
+            const percent = e.offsetX / document.querySelector('.progress-container').offsetWidth;
+            player.currentTime = percent * player.duration;
+        }
+
+        function initTajweedMenu() {
+            const m = document.getElementById('tajweed-menu-list'); m.innerHTML = '';
+            tajweedDatabase.forEach((item, index) => { m.innerHTML += `<button class="menu-item-btn ${index === 0 ? 'active' : ''}" id="btn-tajweed-${item.id}" onclick="displayTajweedRule('${item.id}')"><span>${item.title}</span> <i class="fa-solid fa-chevron-left"></i></button>`; });
+            displayTajweedRule(tajweedDatabase[0].id);
+        }
+
+        function displayTajweedRule(id) {
+            document.querySelectorAll('#tajweed-menu-list .menu-item-btn').forEach(btn => btn.classList.remove('active')); document.getElementById(`btn-tajweed-${id}`).classList.add('active');
+            const rule = tajweedDatabase.find(r => r.id === id); const panel = document.getElementById('tajweed-content-panel');
+            let html = `<div class="tajweed-title"><i class="fa-solid fa-book-open-reader"></i> ${rule.title}</div><p class="tajweed-explain-text">${rule.desc}</p>`;
+            rule.subRules.forEach(sub => { html += `<div class="sub-rule-card"><h4>${sub.name}</h4><div style="line-height:1.8; font-size:1.15rem;">${sub.content}</div><div class="tajweed-example-box">${sub.example}</div></div>`; });
+            panel.innerHTML = html;
+        }
+
+        function initQiraatMenu() {
+            const m = document.getElementById('qiraat-menu-list'); m.innerHTML = '';
+            qiraatDatabase.forEach((item, index) => { m.innerHTML += `<button class="menu-item-btn ${index === 0 ? 'active' : ''}" id="btn-qiraat-${item.id}" onclick="displayQiraatRule('${item.id}')"><span>${item.title}</span> <i class="fa-solid fa-graduation-cap"></i></button>`; });
+            displayQiraatRule(qiraatDatabase[0].id);
+        }
+
+        function displayQiraatRule(id) {
+            const oldExampleAudio = document.querySelector('#qiraat-content-panel audio');
+            if(oldExampleAudio) { oldExampleAudio.pause(); oldExampleAudio.src = ""; }
+
+            document.querySelectorAll('#qiraat-menu-list .menu-item-btn').forEach(btn => btn.classList.remove('active')); document.getElementById(`btn-qiraat-${id}`).classList.add('active');
+            const data = qiraatDatabase.find(q => q.id === id); const panel = document.getElementById('qiraat-content-panel');
+            
+            let html = `
+                <div class="tajweed-title"><i class="fa-solid fa-scroll"></i> ${data.title}</div>
+                <p class="tajweed-explain-text">${data.desc}</p>
+                <div class="audio-example-player">
+                    <strong><i class="fa-solid fa-circle-play"></i> استمع للمثال التطبيقي للقراءة (سورة الفاتحة - آية 4):</strong>
+                    <audio src="${data.audioUrl}" controls style="width:100%; height:40px; border-radius:5px;" onplay="stopAudioRecitation()"></audio>
+                </div>
+            `;
+            
+            data.details.forEach(det => {
+                let icon = det.type==="الفرش المطبق"?"fa-font":(det.type==="الضابط التوجيهي"?"fa-language":"fa-layer-group");
+                html += `<div class="qiraat-detail-card"><div class="qiraat-detail-header"><i class="fa-solid ${icon}"></i> <span>${det.type}: ${det.title}</span></div><div class="qiraat-detail-body">${det.content}</div></div>`;
+            });
+            panel.innerHTML = html;
+        }
+
+        function initSimilarMenu() {
+            const m = document.getElementById('similar-menu-list'); m.innerHTML = '';
+            similarDatabase.forEach((item, index) => { m.innerHTML += `<button class="menu-item-btn ${index === 0 ? 'active' : ''}" id="btn-similar-${item.id}" onclick="displaySimilarRule('${item.id}')"><span>${item.title}</span> <i class="fa-solid fa-code-compare"></i></button>`; });
+            displaySimilarRule(similarDatabase[0].id);
+        }
+
+        function displaySimilarRule(id) {
+            document.querySelectorAll('#similar-menu-list .menu-item-btn').forEach(btn => btn.classList.remove('active')); document.getElementById(`btn-similar-${id}`).classList.add('active');
+            const data = similarDatabase.find(s => s.id === id); const panel = document.getElementById('similar-content-panel');
+            let html = `<div class="tajweed-title"><i class="fa-solid fa-code-compare"></i> ${data.title}</div><p class="tajweed-explain-text">${data.desc}</p>`;
+            data.examples.forEach(ex => {
+                let t1 = ex.text1.replace(ex.highlight1, `<span class="highlight-word">${ex.highlight1}</span>`);
+                let t2 = ex.text2.replace(ex.highlight2, `<span class="highlight-word">${ex.highlight2}</span>`);
+                html += `
+                    <div style="margin-top: 30px; border: 1px solid var(--accent-gold); border-radius: 8px; padding: 15px; box-shadow:0 4px 10px var(--shadow-color);">
+                        <div class="split-screen-container">
+                            <div class="split-pane">
+                                <div class="split-pane-title">${ex.surah1}</div>
+                                <div class="ayah-compare-text">﴿${t1}﴾</div>
+                            </div>
+                            <div class="split-pane">
+                                <div class="split-pane-title">${ex.surah2}</div>
+                                <div class="ayah-compare-text">﴿${t2}﴾</div>
+                            </div>
+                        </div>
+                        <div class="dabit-box"><i class="fa-solid fa-anchor"></i> <strong style="color:#c0392b;">الضابط والتوجيه:</strong> ${ex.dabit}</div>
+                    </div>`;
+            });
+            panel.innerHTML = html;
+        }
+
+    </script>
+</body>
+</html>
